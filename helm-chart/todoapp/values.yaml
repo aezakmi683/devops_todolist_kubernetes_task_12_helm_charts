@@ -1,0 +1,81 @@
+﻿deployment:
+  name: todoapp
+namespace: todoapp
+
+image:
+  repository: ikulyk404/todoapp
+  tag: "4.0.1"
+  pullPolicy: IfNotPresent
+
+serviceAccount:
+  name: secrets-reader
+
+replicaCount: 2
+
+rollingUpdate:
+  maxSurge: 1
+  maxUnavailable: 1
+
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 150m
+  limits:
+    memory: 256Mi
+    cpu: 150m
+
+nodeAffinity:
+  key: app
+  values:
+    - todoapp
+
+service:
+  name: todoapp-service
+  type: ClusterIP
+  port: 80
+  targetPort: 8080
+
+nodePort:
+  enabled: true
+  name: todoapp-nodeport
+  port: 80
+  targetPort: 8080
+  nodePort: 30007
+
+configMap:
+  name: app-config
+
+secret:
+  name: app-secret
+
+config:
+  PYTHONUNBUFFERED: "1"
+
+secrets:
+  SECRET_KEY: "QGUyKHl4KXYmdGdoM19zPTB5amEtaSFkcGVieHN6XmRnNDd4KS1rJmtxXzN6Zio5ZSoK"
+  DB_NAME: "YXBwX2Ri"
+  DB_USER: "YXBwX3VzZXI="
+  DB_PASSWORD: "MTIzNA=="
+  DB_HOST: "bXlzcWwubXlzcWwuc3ZjLmNsdXN0ZXIubG9jYWw="
+
+persistence:
+  pvName: pv-data
+  pvcName: pvc-data
+  storageClassName: standard
+  accessModes:
+    - ReadWriteMany
+  capacity: 1Gi
+  storage: 1Gi
+  hostPath: /data/
+
+hpa:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 5
+  cpuUtilization: 70
+  memoryUtilization: 70
+
+ingress:
+  enabled: true
+  path: /
+  pathType: Prefix

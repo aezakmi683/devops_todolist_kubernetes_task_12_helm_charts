@@ -1,0 +1,42 @@
+﻿namespace: mysql
+
+replicaCount: 2
+
+image:
+  repository: mysql
+  tag: "8.0"
+  pullPolicy: IfNotPresent
+
+service:
+  port: 3306
+
+secrets:
+  MYSQL_ROOT_PASSWORD: "MTIzNA=="
+  MYSQL_USER: "YXBwX3VzZXI="
+  MYSQL_PASSWORD: "MTIzNA=="
+
+database: app_db
+
+persistence:
+  accessModes:
+    - ReadWriteOnce
+  storage: 2Gi
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+  limits:
+    cpu: "1"
+    memory: 2Gi
+
+nodeAffinity:
+  key: app
+  values:
+    - mysql
+
+tolerations:
+  - key: app
+    operator: Equal
+    value: mysql
+    effect: NoSchedule
