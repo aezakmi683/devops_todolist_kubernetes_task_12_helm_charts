@@ -1,7 +1,7 @@
-﻿apiVersion: apps/v1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.deployment.name }}
+  name: {{ .Chart.Name }}-deployment
   namespace: {{ .Values.namespace }}
 spec:
   replicas: {{ .Values.replicaCount }}
@@ -18,7 +18,7 @@ spec:
       labels:
         app: {{ .Chart.Name }}
     spec:
-      serviceAccountName: {{ .Values.serviceAccount.name }}
+      serviceAccountName: {{ .Chart.Name }}-serviceaccount
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -31,13 +31,13 @@ spec:
             - name: PYTHONUNBUFFERED
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Values.configMap.name }}
+                  name: {{ .Chart.Name }}-config
                   key: PYTHONUNBUFFERED
 {{- range $key, $value := .Values.secrets }}
             - name: {{ $key }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ $.Values.secret.name }}
+                  name: {{ $.Chart.Name }}-secrets
                   key: {{ $key }}
 {{- end }}
           volumeMounts:
@@ -64,13 +64,13 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: {{ .Values.persistence.pvcName }}
+            claimName: {{ .Chart.Name }}-pvc
         - name: app-secrets-volume
           secret:
-            secretName: {{ .Values.secret.name }}
+            secretName: {{ .Chart.Name }}-secrets
         - name: app-config-volume
           configMap:
-            name: {{ .Values.configMap.name }}
+            name: {{ .Chart.Name }}-config
       affinity:
         nodeAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -81,6 +81,3 @@ spec:
                     operator: In
                     values:
 {{ toYaml .Values.nodeAffinity.values | indent 22 }}
-
-
-

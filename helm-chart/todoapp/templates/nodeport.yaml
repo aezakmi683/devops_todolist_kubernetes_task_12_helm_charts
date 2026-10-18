@@ -1,4 +1,4 @@
-﻿{{- if .Values.nodePort.enabled }}
+{{- if .Values.nodePort.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
